@@ -35,14 +35,15 @@
             </ul>
           </div>
           <div class="card-footer border-0 bg-white">
-            <form>
+            <form id="form">
               <div class="form-group py-2">
                 <input
                   placeholder="Example: Learning Docker"
                   class="form-control"
                   autocomplete="off"
+                  id="input"
+                  name="title"
                   autofocus
-                  required
                 >
               </div>
             </form>
@@ -51,6 +52,8 @@
       </div>
     </div>
   </div>
+  <script src="//unpkg.com/@feathersjs/client@^4.3.0/dist/feathers.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>
