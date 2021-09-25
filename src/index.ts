@@ -1,5 +1,6 @@
 import feathers from "@feathersjs/feathers";
 import express, { Application } from "@feathersjs/express";
+import { resolve } from "path";
 
 import { NoteService } from "./services/note.service";
 
@@ -14,6 +15,9 @@ app.configure(express.rest());
 
 // Define my service.
 app.use("/notes", new NoteService());
+
+// Server static files.
+app.use(express.static(resolve("public")));
 
 // Use error not found.
 app.use(express.notFound());
