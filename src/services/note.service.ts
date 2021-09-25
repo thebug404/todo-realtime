@@ -9,7 +9,6 @@ export enum Status {
 export interface Note {
   id: Id;
   name: string;
-  description: string;
   status: Status;
   createdAt: string;
   updatedAt: string;
@@ -20,7 +19,6 @@ export class NoteService implements Partial<ServiceMethods<Note>> {
     {
       id: 1,
       name: "Guns N' Roses",
-      description: "Your could be mine.",
       status: Status.COMPLETED,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -28,7 +26,6 @@ export class NoteService implements Partial<ServiceMethods<Note>> {
     {
       id: 2,
       name: "Motionless In White",
-      description: "Voices.",
       status: Status.PENDING,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -36,13 +33,12 @@ export class NoteService implements Partial<ServiceMethods<Note>> {
   ];
 
   async create(
-    data: Pick<Note, "name" | "description">,
+    data: Pick<Note, "name">,
     _?: Params
   ): Promise<Note> {
     const note: Note = {
       id: this.notes.length + 1,
       name: data.name,
-      description: data.description,
       status: Status.PENDING,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -74,7 +70,6 @@ export class NoteService implements Partial<ServiceMethods<Note>> {
     const note: Note = {
       id,
       name: data.name,
-      description: data.description,
       status: data.status,
       createdAt,
       updatedAt: new Date().toISOString(),
