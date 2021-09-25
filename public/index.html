@@ -15,24 +15,17 @@
     >
       <div class="col-12 col-sm-8 col-md-6 col-xl-4 p-3">
         <div class="card border-0 shadow" style="max-height: 80vh;">
+          <div class="card-header border-0 bg-white">
+            <div class="d-flex align-items-center text-muted">
+              <small class="mx-1" id="box-completed"></small>
+              <small class="mx-1" id="box-pending"></small>
+              <small class="mx-1" id="box-total"></small>
+              <span class="spacer"></span>
+              <button class="btn btn-remove btn-primary rounded-pill border-0 px-3">Remove</button>
+            </div>
+          </div>
           <div class="card-body">
-            <ul class="list-group">
-              <li class="list-group-item border-0">
-                <div class="d-flex align-items-center">
-                  <div>
-                    <h5>
-                      <strong>Marilyn Manson</strong>
-                    </h5>
-                    <p class="m-0 text-muted">The beatiful people</p>
-                  </div>
-                  <span class="spacer"></span>
-                  <div class="mx-2 text-center text-danger">
-                    <!-- <i class='bx bx-check-circle'></i> -->
-                    <i class='bx bx-error-circle'></i>
-                  </div>
-                </div>
-              </li>
-            </ul>
+            <ul class="list-group" id="container"></ul>
           </div>
           <div class="card-footer border-0 bg-white">
             <form id="form">

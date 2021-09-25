@@ -1,15 +1,10 @@
 import { Id, Params, ServiceMethods } from "@feathersjs/feathers";
 import { NotFound } from "@feathersjs/errors";
 
-export enum Status {
-  COMPLETED = "completed",
-  PENDING = "pending"
-}
-
 export interface Note {
   id: Id;
   name: string;
-  status: Status;
+  status: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -19,14 +14,14 @@ export class NoteService implements Partial<ServiceMethods<Note>> {
     {
       id: 1,
       name: "Guns N' Roses",
-      status: Status.COMPLETED,
+      status: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
     {
       id: 2,
       name: "Motionless In White",
-      status: Status.PENDING,
+      status: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
@@ -39,12 +34,12 @@ export class NoteService implements Partial<ServiceMethods<Note>> {
     const note: Note = {
       id: this.notes.length + 1,
       name: data.name,
-      status: Status.PENDING,
+      status: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    this.notes.unshift(note);
+    this.notes.push(note);
     return note;
   }
 
