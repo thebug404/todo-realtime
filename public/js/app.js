@@ -1,16 +1,17 @@
-// Instance my app.
-const socket = io();
-const app = feathers(socket);
-
 // Get elements DOM.
 const form = document.getElementById("form");
 const input = document.getElementById("input");
 
-const btnRemove = document.querySelector(".btn-remove");
-
+const container = document.getElementById("container");
 const boxCompleted = document.getElementById("box-completed");
 const boxPending = document.getElementById("box-pending");
 const boxTotal = document.getElementById("box-total");
+
+const btnRemove = document.querySelector(".btn-remove");
+
+// Instance my app.
+const socket = io();
+const app = feathers(socket);
 
 // Configure transport with SocketIO.
 app.configure(feathers.socketio(socket));
@@ -22,12 +23,18 @@ const NoteService = app.service("notes");
 let noteIds = [];
 let notes = [];
 
+/**
+ * Insert id of the notes selected.
+ */
 async function selectNotes(noteId) {
   const index = noteIds.findIndex(id => id === noteId);
   index < 0 ? noteIds.push(noteId) : noteIds.splice(index, 1);
   btnRemove.disabled = !noteIds.length;
 }
 
+/**
+ * Update stadistic of the notes.
+ */
 function updateHeader(items) {
   const completed = items.filter(note => note.status).length;
   const pending = items.length - completed;
@@ -37,12 +44,22 @@ function updateHeader(items) {
   boxTotal.textContent = `Total: ${ items.length }`;
 }
 
+/**
+ * Update note by Id
+ */
 function updateElement(noteId) {
   const note = notes.find(note => note.id === noteId);
   NoteService.patch(note.id, { status: !note.status });
 }
 
-class UI {
+/**
+ * This class is responsible for the creation,
+ * removal and rendering of the component interfaces.
+ */
+class NoteUI {
+  /**
+   * Create element of the note.
+   */
   createElement(note) {
     const element = document.createElement("li");
     element.className = "list-group-item border-0";
@@ -84,6 +101,9 @@ class UI {
     container.insertAdjacentElement("afterbegin", element);
   }
 
+  /**
+   * Remove element by tag id.
+   */
   removeElement(id) {
     const element = document.getElementById(id);
     element.remove();
@@ -91,16 +111,7 @@ class UI {
 }
 
 // Instance UI
-const container = document.getElementById("container");
-const ui = new UI();
-
-btnRemove.addEventListener("click", () => {
-  if (confirm(`Se eliminaran ${ noteIds.length } notas ¿estas seguro?`)) {
-    noteIds.forEach(id => NoteService.remove(id));
-    btnRemove.disabled = true;
-    noteIds = [];
-  }
-});
+const ui = new NoteUI();
 
 // Listening events CRUD.
 NoteService.on("created", note => {
@@ -151,7 +162,15 @@ NoteService.on("removed", note => {
   btnRemove.disabled = true;
 })();
 
-// Listen event.
+// Listen event of the DOM elements.
+btnRemove.addEventListener("click", () => {
+  if (confirm(`Se eliminaran ${ noteIds.length } notas ¿estas seguro?`)) {
+    noteIds.forEach(id => NoteService.remove(id));
+    btnRemove.disabled = true;
+    noteIds = [];
+  }
+});
+
 form.addEventListener("submit", e => {
   e.preventDefault();
 
