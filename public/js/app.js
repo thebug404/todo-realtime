@@ -124,6 +124,8 @@ NoteService.on("patched", note => {
   const element = ui.createElement(note);
   ui.insertElement(container, element);
   // Update header.
+  const index = notes.findIndex(item => item.id === note.id);
+  notes.splice(index, 1, note);
   updateHeader(notes);
 });
 
