@@ -3,7 +3,11 @@ const socket = io();
 const app = feathers(socket);
 
 // Get elements DOM.
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+
 const btnRemove = document.querySelector(".btn-remove");
+
 const boxCompleted = document.getElementById("box-completed");
 const boxPending = document.getElementById("box-pending");
 const boxTotal = document.getElementById("box-total");
@@ -11,21 +15,31 @@ const boxTotal = document.getElementById("box-total");
 // Configure transport with SocketIO.
 app.configure(feathers.socketio(socket));
 
+// Get note service.
+const NoteService = app.service("notes");
+
+// Sets values.
 let noteIds = [];
 let notes = [];
 
-async function insertElement(noteId) {
+async function selectNotes(noteId) {
   const index = noteIds.findIndex(id => id === noteId);
   index < 0 ? noteIds.push(noteId) : noteIds.splice(index, 1);
+  btnRemove.disabled = !noteIds.length;
 }
 
 function updateHeader(items) {
   const completed = items.filter(note => note.status).length;
-  const pending = items.filter(note => !note.status).length;
+  const pending = items.length - completed;
   
   boxCompleted.textContent = `Completed: ${ completed }`;
   boxPending.textContent = `Pending: ${ pending }`;
   boxTotal.textContent = `Total: ${ items.length }`;
+}
+
+function updateElement(noteId) {
+  const note = notes.find(note => note.id === noteId);
+  NoteService.patch(note.id, { status: !note.status });
 }
 
 class UI {
@@ -42,7 +56,7 @@ class UI {
         <small class="m-0 text-muted">${ note.createdAt }</small>
       </div>
       <span class="spacer"></span>
-      <div class="mx-2 text-center text-${ note.status ? 'success' : 'danger' }">
+      <div onclick="updateElement(${note.id})" class="mx-2 text-center text-${ note.status ? 'success' : 'danger' }">
         <i class='bx bx-${ note.status ? 'check-circle' : 'error' }'></i>
       </div>
       <div class="ms-2">
@@ -52,7 +66,7 @@ class UI {
             type="checkbox"
             value=""
             id="flexCheckDefault"
-            onclick="insertElement(${ note.id })"
+            onclick="selectNotes(${ note.id })"
           >
         </div>
       </div>
@@ -76,9 +90,6 @@ class UI {
   }
 }
 
-// Get my service.
-const NoteService = app.service("notes");
-
 // Instance UI
 const container = document.getElementById("container");
 const ui = new UI();
@@ -86,6 +97,8 @@ const ui = new UI();
 btnRemove.addEventListener("click", () => {
   if (confirm(`Se eliminaran ${ noteIds.length } notas ¿estas seguro?`)) {
     noteIds.forEach(id => NoteService.remove(id));
+    btnRemove.disabled = true;
+    noteIds = [];
   }
 });
 
@@ -99,12 +112,18 @@ NoteService.on("created", note => {
 });
 
 NoteService.on("updated", note => {
+  // I leave this method for you as homework.
   console.log("Updated: ",  note);
   updateHeader(notes);
 });
 
 NoteService.on("patched", note => {
-  console.log("Patched: ",  note);
+  // Remove old element.
+  ui.removeElement(note.id);
+  // Create element updated.
+  const element = ui.createElement(note);
+  ui.insertElement(container, element);
+  // Update header.
   updateHeader(notes);
 });
 
@@ -112,23 +131,23 @@ NoteService.on("removed", note => {
   ui.removeElement(note.id);
 
   const index = notes.findIndex(note => note.id === note.id);
-  if (index < 0) notes.splice(index, 1);
+  notes.splice(index, 1);
   updateHeader(notes);
 });
 
-// Get list of notes.
-NoteService.find().then(items => {
-  notes = items;
-  items.forEach(note => {
+// Initialize values.
+(async () => {
+  // Get lits of note.
+  notes = await NoteService.find();
+  notes.forEach(note => {
     const element = ui.createElement(note);
     ui.insertElement(container, element);
   });
+  // Update header.
   updateHeader(notes);
-});
-
-// Get elements.
-const form = document.getElementById("form");
-const input = document.getElementById("input");
+  // Button for remove is disable.
+  btnRemove.disabled = true;
+})();
 
 // Listen event.
 form.addEventListener("submit", e => {
@@ -136,10 +155,8 @@ form.addEventListener("submit", e => {
 
   const formdata = new FormData(form);
   const title = formdata.get("title");
-  // Validate empty input.a
   if (!title) return false;
 
-  // Create a new note.
   NoteService.create({ name: title });
   form.reset();
 });
